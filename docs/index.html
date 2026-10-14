@@ -1,0 +1,681 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How the #1 Hit Changed, 1958–2025 · Mohit Saini</title>
+<meta name="description" content="A data story on 67 years of Billboard #1 hits: shorter songs, bigger writing teams, week-one debuts, the biggest artists and India on America's chart. By Mohit Saini.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<style>
+:root{--font-anthropic-sans:Inter,system-ui,sans-serif;--font-anthropic-serif:"Source Serif 4",Georgia,serif;
+--color-bg:#FBF8F3;--color-fg:#26221E;--color-fg-muted:#6E665F;--color-panel:#FFFFFF;--color-border-line:#E6DED4;--color-bad:#C0392B;
+--cds-font-size-caption:.8125rem;--cds-font-size-body:.9375rem;--cds-font-size-heading:1.0625rem;--cds-font-size-title:1.5rem;--cds-font-weight-medium:600;
+--cds-gap-xs:.25rem;--cds-gap-sm:.5rem;--cds-gap-md:1rem;--cds-gap-lg:1.5rem;--cds-gap-xl:2.5rem;
+--cds-pad-xs:.25rem;--cds-pad-sm:.5rem;--cds-pad-md:.875rem;--cds-pad-lg:1.25rem;--cds-radius:12px;
+--cds-chart-grid:#ECE5DC;--cds-chart-axis:#CFC6BB;--cds-chart-reference:#B8AEA3;--cds-chart-muted:#D8D0C6;
+--cds-surface-popover:#FFFFFF;--cds-border:#E0D8CE;--cds-shadow-popover:0 6px 20px rgba(0,0,0,.12);--cds-text-secondary:#6E665F;--cds-dur-slow:.3s;}
+@media (prefers-color-scheme: dark){:root{--color-bg:#1B1A18;--color-fg:#EFEAE4;--color-fg-muted:#A79F96;--color-panel:#24221F;--color-border-line:#3A3632;
+--cds-chart-grid:#33302C;--cds-chart-axis:#4A4540;--cds-chart-reference:#5E5852;--cds-chart-muted:#4A4540;--cds-surface-popover:#2C2A27;--cds-border:#3F3B37;--cds-text-secondary:#A79F96;}}
+html,body{margin:0;background:var(--color-bg);color:var(--color-fg);}
+#dash-root{padding:clamp(16px,4vw,48px) clamp(16px,4vw,40px);}
+</style>
+<script>
+(function(){
+const RAW={"n1dec": "decade,songs,median_length_sec,median_intro_sec,share_intro_le_5s,avg_songwriters,share_solo_writer,avg_producers,share_featured_artist,share_fade_out,share_explicit,share_artist_cowrote,avg_weeks_at_1,top3_parent_share,top3_parents,distinct_parents,decade_label\n1950,23,151.0,12.0,0.1304,1.913,0.3478,1.2609,0.0435,0.4348,0.0,0.4348,3.2174,0.3913,ABC / MGM / Dolton,15,1958\u201359\n1960,203,163.0,8.0,0.2365,1.9901,0.2759,1.3645,0.0296,0.6453,0.0246,0.3842,2.5616,0.2759,Motown / EMI / CBS,59,1960s\n1970,253,212.0,15.0,0.1028,1.8261,0.4229,1.7668,0.083,0.7036,0.0711,0.5652,2.0672,0.3518,Warner Bros. / Motown / CBS,44,1970s\n1980,231,244.0,19.0,0.0303,2.0087,0.4199,1.9827,0.1039,0.7143,0.0433,0.6753,2.2641,0.4762,Warner Bros. / CBS / EMI,21,1980s\n1990,140,250.0,20.0,0.0571,2.5857,0.2286,1.8643,0.1929,0.4786,0.2,0.6643,3.7214,0.6115,Sony / BMG / Warner Bros.,17,1990s\n2000,129,235.0,17.0,0.0853,3.3798,0.0853,1.9845,0.3256,0.3566,0.5659,0.814,4.031,0.8062,Universal / Sony / BMG,12,2000s\n2010,116,223.0,10.0,0.2241,4.5431,0.0431,2.3534,0.4138,0.1207,0.4655,0.9483,4.569,0.8707,Universal / Sony / Warner Bros.,9,2010s\n2020,82,200.0,10.5,0.1951,4.8415,0.0488,2.5488,0.2439,0.1585,0.5976,0.9268,3.0122,0.7901,Universal / Sony / Warner Bros.,14,2020\u201325\n", "h100yr": "year,new_songs,top10_hits,top10_debuting_in_top10,top10_median_weeks_to_peak,median_weeks_on_chart\n1959,573,92,0.0,7.0,9.0\n1960,607,94,0.0,7.0,8.0\n1961,677,105,0.0,7.0,7.0\n1962,659,109,0.0,7.0,8.0\n1963,662,110,0.0,7.0,8.0\n1964,717,103,0.0,6.0,7.0\n1965,706,117,0.0,6.0,7.0\n1966,740,115,0.0,6.0,7.0\n1967,736,109,0.0,7.0,7.0\n1968,679,98,0.0102,6.0,7.0\n1969,667,98,0.0102,7.0,7.0\n1970,633,97,0.0103,8.0,8.0\n1971,612,91,0.0,7.0,8.0\n1972,583,106,0.0,9.0,9.0\n1973,506,93,0.0,9.0,10.0\n1974,494,118,0.0,9.5,10.0\n1975,556,106,0.0,11.0,8.0\n1976,523,87,0.0,12.0,8.0\n1977,467,84,0.0,12.0,10.0\n1978,442,79,0.0,12.0,11.0\n1979,483,78,0.0,11.0,10.0\n1980,450,81,0.0,10.0,11.0\n1981,410,75,0.0,10.0,11.0\n1982,429,75,0.0,11.0,11.0\n1983,440,87,0.0,10.0,11.0\n1984,431,96,0.0,9.0,12.0\n1985,404,105,0.0,10.0,13.0\n1986,396,111,0.0,11.0,13.0\n1987,388,110,0.0,10.0,13.0\n1988,380,114,0.0,10.0,13.0\n1989,385,115,0.0,10.0,13.0\n1990,377,106,0.0,10.0,14.0\n1991,379,95,0.0,10.0,14.0\n1992,358,63,0.0,9.0,15.5\n1993,341,58,0.0,9.0,15.0\n1994,338,54,0.0,10.0,16.0\n1995,332,57,0.193,9.0,16.0\n1996,306,48,0.2292,5.5,17.0\n1997,327,57,0.2807,5.0,16.0\n1998,355,67,0.2687,6.0,15.0\n1999,310,66,0.0152,8.0,17.0\n2000,316,52,0.0,12.5,19.0\n2001,288,56,0.0179,12.0,20.0\n2002,302,61,0.0,9.0,20.0\n2003,307,50,0.06,11.5,19.0\n2004,303,57,0.0351,10.0,19.0\n2005,344,61,0.0492,10.0,16.0\n2006,366,70,0.0143,10.0,15.0\n2007,352,63,0.1111,9.0,17.0\n2008,411,62,0.2419,6.0,13.0\n2009,429,59,0.1864,9.0,11.0\n2010,474,60,0.25,9.0,7.0\n2011,484,56,0.3036,10.0,6.0\n2012,363,49,0.2449,11.0,14.0\n2013,381,48,0.2083,8.0,12.0\n2014,361,49,0.0816,11.0,16.0\n2015,392,44,0.2045,12.0,11.0\n2016,410,47,0.2766,11.0,11.0\n2017,460,51,0.2745,10.0,6.0\n2018,596,65,0.6154,1.0,3.0\n2019,525,48,0.4375,2.0,4.0\n2020,680,65,0.6769,0.0,\n", "h100dec": "decade,top10_hits,share_debut_in_top10,median_weeks_to_peak\n1950,92,0.0,7.0\n1960,1058,0.0019,7.0\n1970,939,0.0011,10.0\n1980,969,0.0,10.0\n1990,671,0.0849,9.0\n2000,591,0.0728,10.0\n2010,517,0.2998,9.0\n2020,65,0.6769,0.0\n", "art_n1": "artist,number_ones,as_lead,weeks_at_1,first_year,last_year,origin,span_years,rank\nThe Beatles,20,20,58,1964,1970,United Kingdom,6,1\nMariah Carey,19,19,87,1990,2019,United States,29,2\nRihanna,14,11,60,2006,2016,Barbados,10,3\nDrake,13,10,56,2010,2023,Canada,13,4\nMichael Jackson,12,12,36,1972,1995,United States,23,5\nTaylor Swift,12,12,36,2012,2024,United States,12,6\nMadonna,12,12,32,1984,2000,United States,16,7\nThe Supremes,12,12,21,1964,1969,United States,5,8\nWhitney Houston,11,11,31,1985,1995,United States,10,9\nJanet Jackson,10,10,33,1986,2001,United States,15,10\nBeyonc\u00e9,9,8,47,2003,2024,United States,21,11\nUsher,9,9,47,1998,2010,United States,12,12\nKaty Perry,9,9,33,2008,2014,United States,6,13\nBee Gees,9,9,28,1971,1979,United Kingdom,8,14\nAriana Grande,9,9,23,2018,2024,United States,6,15\n", "art_wk": "artist,number_ones,as_lead,weeks_at_1,first_year,last_year,origin,span_years,rank\nMariah Carey,19,19,87,1990,2019,United States,29,1\nRihanna,14,11,60,2006,2016,Barbados,10,2\nThe Beatles,20,20,58,1964,1970,United Kingdom,6,3\nDrake,13,10,56,2010,2023,Canada,13,4\nBoyz II Men,5,5,50,1992,1997,United States,5,5\nBeyonc\u00e9,9,8,47,2003,2024,United States,21,6\nUsher,9,9,47,1998,2010,United States,12,7\nMichael Jackson,12,12,36,1972,1995,United States,23,8\nTaylor Swift,12,12,36,2012,2024,United States,12,9\nBruno Mars,8,6,34,2010,2025,United States,15,10\n", "intl": "decade,number_ones,non_us,share_non_us,decade_label\n1950,23,2,0.087,1958\u201359\n1960,203,44,0.2167,1960s\n1970,253,66,0.2609,1970s\n1980,231,83,0.3593,1980s\n1990,140,28,0.2,1990s\n2000,129,19,0.1473,2000s\n2010,116,33,0.2845,2010s\n2020,82,19,0.2317,2020\u201325\n", "countries": "country,number_ones\nUnited Kingdom,179\nCanada,48\nAustralia,17\nBarbados,10\nJamaica,8\nSweden,7\nSouth Korea,7\nGermany,6\nFrance,5\nIreland,5\nSpain,3\nNetherlands,2\n", "art_intl": "artist,number_ones,as_lead,weeks_at_1,first_year,last_year,origin,span_years,rank\nThe Beatles,20,20,58,1964,1970,United Kingdom,6,1\nRihanna,14,11,60,2006,2016,Barbados,10,2\nDrake,13,10,56,2010,2023,Canada,13,3\nBee Gees,9,9,28,1971,1979,United Kingdom,8,4\nThe Rolling Stones,8,8,17,1965,1978,United Kingdom,13,5\nJustin Bieber,7,5,25,2015,2021,Canada,6,6\nThe Weeknd,7,7,18,2015,2023,Canada,8,7\nGeorge Michael,7,7,15,1987,1992,United Kingdom,5,8\nPhil Collins,6,6,14,1984,1989,United Kingdom,5,9\nAdele,5,5,34,2011,2021,United Kingdom,10,10\n", "art_us": "artist,number_ones,as_lead,weeks_at_1,first_year,last_year,origin,span_years,rank\nMariah Carey,19,19,87,1990,2019,United States,29,1\nMichael Jackson,12,12,36,1972,1995,United States,23,2\nTaylor Swift,12,12,36,2012,2024,United States,12,3\nMadonna,12,12,32,1984,2000,United States,16,4\nThe Supremes,12,12,21,1964,1969,United States,5,5\nWhitney Houston,11,11,31,1985,1995,United States,10,6\nJanet Jackson,10,10,33,1986,2001,United States,15,7\nBeyonc\u00e9,9,8,47,2003,2024,United States,21,8\nUsher,9,9,47,1998,2010,United States,12,9\nKaty Perry,9,9,33,2008,2014,United States,6,10\n", "records": "record,song,artist,year,value,unit,note\nLongest run at #1,A Bar Song (Tipsy),Shaboozey,2024,19,weeks,\"tied with Old Town Road (Lil Nas X ft. Billy Ray Cyrus, 2019)\"\nBiggest leap to #1,My Life Would Suck Without You,Kelly Clarkson,2009,97,from position,\nLongest Hot 100 run (to May 2021),Radioactive,Imagine Dragons,2012,87,weeks,\nYoungest lead singer at #1,ABC,The Jackson 5,1970,11,years old,\"Michael Jackson, on three 1970 #1s\"\nOldest lead singer at #1,Rockin' Around the Christmas Tree,Brenda Lee,2023,78,years old,a 1958 recording that first reached #1 in 2023\nLongest span between first and latest #1,,Brenda Lee,2023,63,years,\"first #1 in 1960, latest in 2023\"\n", "south": "act,song,performer,peak,weeks,year,roots\nJay Sean,Down,Jay Sean Featuring Lil Wayne,1,40,2009,British singer of Indian Punjabi heritage\nZayn,Pillowtalk,Zayn,1,24,2016,British singer of Pakistani heritage\nM.I.A.,Franchise,Travis Scott Featuring Young Thug & M.I.A.,1,9,2020,British rapper of Sri Lankan Tamil heritage\nZayn,I Don't Wanna Live Forever (Fifty Shades Darker),Zayn / Taylor Swift,2,23,2016,British singer of Pakistani heritage\nM.I.A.,Paper Planes,M.I.A.,4,20,2008,British rapper of Sri Lankan Tamil heritage\nJay Sean,Do You Remember,Jay Sean Featuring Sean Paul & Lil Jon,10,20,2009,British singer of Indian Punjabi heritage\nM.I.A.,Give Me All Your Luvin',Madonna Featuring Nicki Minaj & M.I.A.,10,6,2012,British rapper of Sri Lankan Tamil heritage\nA R Rahman,Jai Ho! (You Are My Destiny),A R Rahman & The Pussycat Dolls Featuring Nicole Scherzinger,15,13,2009,Indian composer (Slumdog Millionaire)\nJay Sean,Hit The Lights,Jay Sean Featuring Lil Wayne,18,2,2011,British singer of Indian Punjabi heritage\nJay Sean,I Made It (Cash Money Heroes),\"Kevin Rudolf Featuring Birdman, Jay Sean, & Lil Wayne\",21,20,2010,British singer of Indian Punjabi heritage\nNorah Jones,Don't Know Why,Norah Jones,30,31,2002,\"American singer, daughter of Ravi Shankar\"\nJay Sean,2012 (It Ain't The End),Jay Sean Featuring Nicki Minaj,31,14,2010,British singer of Indian Punjabi heritage\nPanjabi MC,Beware Of The Boys (Mundian To Bach Ke),Panjabi MC Featuring Jay-Z,33,12,2003,British bhangra producer of Indian Punjabi heritage\n", "india": "song,artist,year,link\nCalcutta,Lawrence Welk,1961,Named after Calcutta (Kolkata)\n\"Paint it, Black\",The Rolling Stones,1966,Features a sitar\nGreen Tambourine,The Lemon Pipers,1968,Features a sitar\nJudy in Disguise (With Glasses),John Fred & His Playboy Band,1968,Features a sitar\nThen Came You,Dionne Warwick & The Spinners,1974,Features a sitar\nLucy in the Sky with Diamonds,Elton John,1975,Features a sitar\nEverytime You Go Away,Paul Young,1985,Features a sitar\nI'll Be There for You,Bon Jovi,1989,Features a sitar\nLove Will Lead You Back,Taylor Dayne,1990,Features a sitar\nBaby Boy,Beyonc\u00e9 ft. Sean Paul,2003,Features a sitar\n"};
+const cache={},calcs={},subs=[];
+const parse=(id)=>{if(!cache[id]){const rows=d3.csvParse(RAW[id]);cache[id]={status:'ok',data:rows,columns:rows.columns,meta:[]};}return cache[id];};
+window.dash={
+ colors:['#D9663F','#2A9D8F','#8B5FBF','#3F7CC4','#D49A12','#D45C86','#5E9E4F','#E07B2E'],
+ data(id){ if(RAW[id]) return parse(id); if(calcs[id]){const c=calcs[id];return {status:'ok',data:c.fn(...c.inputs.map(i=>dash.data(i).data)),meta:[]};} return {status:'missing',data:[]}; },
+ calc(id,o){calcs[id]=o;}, loader(){}, setLink(){}, params(){return {};}, setParams(){}, resetParams(){}, refresh(){},
+ onData(fn){subs.push(fn); try{fn();}catch(e){console.error(e);} }
+};
+let t; window.addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(()=>subs.forEach(f=>{try{f()}catch(e){console.error(e)}}),150);});
+})();
+</script>
+</head><body><div id="dash-root">
+<style>
+.hx { max-width: 1100px; margin-inline: auto; font-family: var(--font-anthropic-sans); color: var(--color-fg); }
+.hx-eyebrow { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); letter-spacing: .04em; text-transform: uppercase; margin: 0 0 var(--cds-gap-xs); }
+.hx h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: clamp(1.9rem, 4vw, 2.8rem); line-height: 1.1; margin: 0 0 var(--cds-gap-sm); }
+.hx-take { font-size: var(--cds-font-size-heading); line-height: 1.45; max-width: 60rem; margin: 0 0 var(--cds-gap-xl); color: var(--color-fg); }
+.hx-take b, .hx-p b { font-weight: 600; }
+.hx-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--cds-gap-md); margin-bottom: var(--cds-gap-xl); }
+.hx-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); position: relative; min-width: 0; }
+.hx-k-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0 0 var(--cds-gap-xs); }
+.hx-k-val { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 2.6rem; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.hx-k-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: var(--cds-gap-xs); font-variant-numeric: tabular-nums; }
+.hx-sec { margin: var(--cds-gap-xl) 0; }
+.hx-sec h2 { font-size: var(--cds-font-size-title); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+.hx-p { font-size: var(--cds-font-size-body); line-height: 1.6; color: var(--color-fg); max-width: 54rem; margin: 0 0 var(--cds-gap-md); }
+.hx-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
+.hx-card h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.hx-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: var(--cds-gap-xs) 0 var(--cds-gap-md); }
+.hx-chart { min-height: 240px; }
+.hx-chart.hx-tall { min-height: 300px; }
+.hx-chart svg { display: block; overflow: visible; }
+.hx-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); white-space: nowrap; opacity: 0; transition: opacity .1s; z-index: 5; }
+.hx-tip .t { color: var(--cds-text-secondary); }
+.hx-tip .v { font-variant-numeric: tabular-nums; font-weight: 600; }
+.hx-impl { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--cds-gap-md); }
+.hx-impl .hx-card h3 { margin-bottom: var(--cds-gap-xs); }
+.hx-impl p { font-size: var(--cds-font-size-body); line-height: 1.55; margin: 0; color: var(--color-fg); }
+.hx-tablewrap { overflow-x: auto; }
+.hx table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-body); font-variant-numeric: tabular-nums; }
+.hx th { text-align: right; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.hx td { text-align: right; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+.hx th:first-child, .hx td:first-child { text-align: left; }
+.hx td.lbl { white-space: normal; text-align: left; color: var(--color-fg-muted); }
+.hx-method { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.6; }
+.hx-method ul { padding-left: 1.1rem; margin: var(--cds-gap-xs) 0; }
+.hx-method h3 { color: var(--color-fg); }
+.hx-by { margin-top: var(--cds-gap-xl); padding-top: var(--cds-gap-md); border-top: 1px solid var(--color-border-line); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.hx-by b { color: var(--color-fg); font-weight: 600; }
+.hx-fail { display: flex; align-items: center; justify-content: center; gap: .5rem; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.hx-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+.hx-rec { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: var(--cds-gap-md); }
+.hx-rec .hx-k-val { font-size: 2.2rem; }
+.hx-rec .unit { font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-body); color: var(--color-fg-muted); margin-left: .35rem; }
+.hx-rec .song { font-size: var(--cds-font-size-body); margin-top: var(--cds-gap-xs); }
+.hx-rec .song b { font-weight: 600; }
+.hx-h { min-height: 200px; }
+.hx { --c1:#D9663F; --c2:#D49A12; --c3:#2A9D8F; --c4:#8B5FBF; --c5:#3F7CC4; --c6:#D45C86; --c7:#5E9E4F; --c8:#E07B2E; --c9:#2E8B57; --ac: var(--c1); }
+.hx .s1{--ac:var(--c1)} .hx .s2{--ac:var(--c4)} .hx .s3{--ac:var(--c5)} .hx .s4{--ac:var(--c3)} .hx .s5{--ac:var(--c2)}
+.hx .s6{--ac:var(--c6)} .hx .s7{--ac:var(--c7)} .hx .s8{--ac:var(--c5)} .hx .s9{--ac:var(--c8)} .hx .s10{--ac:var(--c3)}
+.hx .ac1{--ac:var(--c1)} .hx .ac2{--ac:var(--c2)} .hx .ac3{--ac:var(--c3)} .hx .ac4{--ac:var(--c4)} .hx .ac5{--ac:var(--c5)} .hx .ac6{--ac:var(--c6)} .hx .ac7{--ac:var(--c7)} .hx .ac9{--ac:var(--c9)}
+.hx-hero { position: relative; overflow: hidden; border-radius: calc(var(--cds-radius) * 2); padding: clamp(1.25rem, 4vw, 2.5rem); margin-bottom: var(--cds-gap-lg);
+  background: color-mix(in srgb, var(--c1) 9%, var(--color-panel)); border: 1px solid color-mix(in srgb, var(--c1) 22%, var(--color-border-line)); }
+.hx-hero > * { position: relative; z-index: 1; max-width: 46rem; }
+.hx-hero .hx-take { margin-bottom: 0; }
+.hx-stripe { display: flex; height: 6px; border-radius: 3px; overflow: hidden; margin-bottom: var(--cds-gap-md); max-width: 14rem; }
+.hx-stripe i { flex: 1; } .hx-stripe i:nth-child(1){background:var(--c1)} .hx-stripe i:nth-child(2){background:var(--c2)} .hx-stripe i:nth-child(3){background:var(--c7)} .hx-stripe i:nth-child(4){background:var(--c3)} .hx-stripe i:nth-child(5){background:var(--c5)} .hx-stripe i:nth-child(6){background:var(--c4)} .hx-stripe i:nth-child(7){background:var(--c6)}
+.hx-vinyl { position: absolute; z-index: 0; right: -70px; top: 50%; transform: translateY(-50%); width: 300px; height: 300px; border-radius: 50%; max-width: none;
+  background: repeating-radial-gradient(circle, color-mix(in srgb, var(--color-fg) 9%, transparent) 0 2px, transparent 2px 9px), color-mix(in srgb, var(--color-fg) 6%, transparent); }
+.hx-vinyl::after { content: ""; position: absolute; inset: 37%; border-radius: 50%; background: var(--c2); box-shadow: 0 0 0 10px var(--c1); }
+@media (max-width: 640px) { .hx-vinyl { opacity: .35; right: -140px; } }
+.hx-take b { color: var(--c1); }
+.hx-kpis .hx-card { border-top: 5px solid var(--ac); background: color-mix(in srgb, var(--ac) 8%, var(--color-panel)); border-color: color-mix(in srgb, var(--ac) 25%, var(--color-border-line)); border-top-color: var(--ac); }
+.hx-kpis .hx-k-val, .hx-rec .hx-k-val { color: var(--ac); }
+.hx-sec .hx-card { background: color-mix(in srgb, var(--ac) 6%, var(--color-panel)); border-color: color-mix(in srgb, var(--ac) 22%, var(--color-border-line)); }
+.hx-sec h2 { display: flex; align-items: center; gap: .65rem; }
+.hx-num { flex: none; display: inline-grid; place-items: center; width: 2.1rem; height: 2.1rem; border-radius: 50%; background: var(--ac); color: #fff; font-size: 1rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+.hx-sec .hx-p b { color: var(--ac); }
+.hx-sec .hx-p { border-left: 3px solid color-mix(in srgb, var(--ac) 45%, transparent); padding-left: var(--cds-pad-md); }
+.hx-sec th { color: var(--ac); }
+.hx-rec .hx-card, .hx-impl .hx-card { border-top: 5px solid var(--ac); border-top-color: var(--ac); background: color-mix(in srgb, var(--ac) 8%, var(--color-panel)); }
+.hx-impl .hx-card h3 { color: var(--ac); }
+.hx-legend { display: inline-flex; align-items: center; gap: .3rem; margin-right: .8rem; }
+.hx-legend i { width: .7rem; height: .7rem; border-radius: 3px; display: inline-block; }
+.hx-by { border-top: 3px solid; border-image: linear-gradient(90deg, var(--c1), var(--c2), var(--c7), var(--c3), var(--c5), var(--c4), var(--c6)) 1; }
+</style>
+
+<div class="hx">
+  <div class="hx-hero">
+  <div class="hx-vinyl" aria-hidden="true"></div>
+  <div class="hx-stripe" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <p class="hx-eyebrow">Music industry data analysis · Billboard 1958–2025</p>
+  <h1 id="top">How the #1 hit changed</h1>
+  <p class="hx-take" id="takeaway">
+    Compared with the 1990s, today's typical #1 is shorter (<b class="" data-source="n1dec" data-field="median_length_sec" data-where="decade=1990" id="t-len90">—</b> → <b class="" data-source="n1dec" data-field="median_length_sec" data-where="decade=2020" id="t-len20">—</b>), gets to the point in about half the time, and credits more than twice as many songwriters as in the 1980s. On the Hot 100, big hits no longer climb: in 2020, <b class="" data-source="h100yr" data-field="top10_debuting_in_top10" data-where="year=2020" id="t-deb20">—</b> of top-10 hits entered the chart already in the top 10.
+  </p>
+  </div>
+
+  <div class="hx-kpis">
+    <div class="hx-card ac1">
+      <p class="hx-k-label">Median length of a #1 hit, 2020–25</p>
+      <div class="hx-k-val " data-source="n1dec" data-field="median_length_sec" data-where="decade=2020" id="k-len">—</div>
+      <div class="hx-k-sub">vs <span data-source="n1dec" data-field="median_length_sec" data-where="decade=1990" id="k-len-b">—</span> in the 1990s</div>
+    </div>
+    <div class="hx-card ac3">
+      <p class="hx-k-label">Median intro before the vocal, 2020–25</p>
+      <div class="hx-k-val " data-source="n1dec" data-field="median_intro_sec" data-where="decade=2020" id="k-intro">—</div>
+      <div class="hx-k-sub">vs <span data-source="n1dec" data-field="median_intro_sec" data-where="decade=1990" id="k-intro-b">—</span> in the 1990s</div>
+    </div>
+    <div class="hx-card ac4">
+      <p class="hx-k-label">Songwriters per #1 hit (average), 2020–25</p>
+      <div class="hx-k-val " data-source="n1dec" data-field="avg_songwriters" data-where="decade=2020" id="k-wr">—</div>
+      <div class="hx-k-sub">vs <span data-source="n1dec" data-field="avg_songwriters" data-where="decade=1980" id="k-wr-b">—</span> in the 1980s</div>
+    </div>
+    <div class="hx-card ac5">
+      <p class="hx-k-label">Top-10 hits that debuted in the top 10, 2020</p>
+      <div class="hx-k-val " data-source="h100yr" data-field="top10_debuting_in_top10" data-where="year=2020" id="k-deb">—</div>
+      <div class="hx-k-sub">vs <span data-source="h100dec" data-field="share_debut_in_top10" data-where="decade=1980" id="k-deb-b">—</span> across the 1980s</div>
+    </div>
+  </div>
+
+  <section class="hx-sec s1" id="shorter">
+    <h2><span class="hx-num">1</span>Songs got shorter, and get to the hook faster</h2>
+    <p class="hx-p">#1 hits grew longer through the 1980s and 90s, then reversed. The intro, the seconds before the first vocal, roughly halved. Fade-outs, once the default ending, became rare: they ended <b data-source="n1dec" data-field="share_fade_out" data-where="decade=1980" id="p-fade80">—</b> of 1980s #1s but only <b data-source="n1dec" data-field="share_fade_out" data-where="decade=2020" id="p-fade20">—</b> since 2020. These shifts line up with the era in which plays, and skips, are what get counted.</p>
+    <div class="hx-grid">
+      <div class="hx-card">
+        <h3>Median length of #1 hits</h3>
+        <p class="hx-note">Minutes:seconds, by decade the song reached #1</p>
+        <div class="hx-chart " id="c-len" data-source="n1dec"></div>
+      </div>
+      <div class="hx-card">
+        <h3>Median intro length</h3>
+        <p class="hx-note">Seconds before the lead vocal starts</p>
+        <div class="hx-chart " id="c-intro" data-source="n1dec"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hx-sec s2" id="writers">
+    <h2><span class="hx-num">2</span>A #1 hit now takes a team</h2>
+    <p class="hx-p">From the 1990s on, the number of credited songwriters climbed steadily, even after removing credits that come only from samples or interpolations. Solo-written #1s, <b data-source="n1dec" data-field="share_solo_writer" data-where="decade=1980" id="p-solo80">—</b> of the 1980s total, have nearly disappeared (<b data-source="n1dec" data-field="share_solo_writer" data-where="decade=2020" id="p-solo20">—</b> since 2020). For publishers, each hit is now split many more ways.</p>
+    <div class="hx-grid">
+      <div class="hx-card">
+        <h3>Songwriters per #1 hit</h3>
+        <p class="hx-note">Average credited writers, excluding sample and interpolation credits</p>
+        <div class="hx-chart " id="c-wr" data-source="n1dec"></div>
+      </div>
+      <div class="hx-card">
+        <h3>#1 hits written by one person</h3>
+        <p class="hx-note">Share of #1 hits with a single credited songwriter</p>
+        <div class="hx-chart " id="c-solo" data-source="n1dec"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hx-sec s3" id="debuts">
+    <h2><span class="hx-num">3</span>Hits no longer climb the chart, they arrive</h2>
+    <p class="hx-p">For decades a hit built slowly through radio, entering low and climbing for weeks. That pattern broke in two steps, each following a change in how Billboard counts: point-of-sale tracking from 1991, then downloads and streaming. Today a big release is often at its peak in its first week, which shifts promotion spend toward release week and pre-release hype.</p>
+    <div class="hx-card">
+      <h3>Top-10 hits that debuted inside the top 10</h3>
+      <p class="hx-note">Share of each year's top-10 hits, by year of chart debut · dashed lines mark Billboard methodology changes</p>
+      <div class="hx-chart hx-tall " id="c-deb" data-source="h100yr"></div>
+    </div>
+  </section>
+
+  <section class="hx-sec s4" id="churn">
+    <h2><span class="hx-num">4</span>More songs, shorter chart lives</h2>
+    <p class="hx-p">The number of different songs entering the Hot 100 each year fell to a low of <b data-source="h100yr" data-field="new_songs" data-where="year=2001" id="p-new01">—</b> in 2001, then rebounded to <b data-source="h100yr" data-field="new_songs" data-where="year=2020" id="p-new20">—</b> in 2020, a rise that coincides with streaming, which lets one big album place many tracks at once. Most of those songs leave quickly: a typical entry in 2019 lasted <b data-source="h100yr" data-field="median_weeks_on_chart" data-where="year=2019" id="p-wk19">—</b> weeks.</p>
+    <div class="hx-grid">
+      <div class="hx-card">
+        <h3>Different songs entering the Hot 100</h3>
+        <p class="hx-note">New chart entries per year</p>
+        <div class="hx-chart " id="c-new" data-source="h100yr"></div>
+      </div>
+      <div class="hx-card">
+        <h3>Typical time on the chart</h3>
+        <p class="hx-note">Median weeks on the Hot 100, by year of debut (to 2019)</p>
+        <div class="hx-chart " id="c-wk" data-source="h100yr"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hx-sec s5" id="labels">
+    <h2><span class="hx-num">5</span>Fewer corporate owners behind the #1s</h2>
+    <p class="hx-p">In the 1960s the three biggest parent companies released <b data-source="n1dec" data-field="top3_parent_share" data-where="decade=1960" id="p-top60">—</b> of #1 hits. In the 2010s they released <b data-source="n1dec" data-field="top3_parent_share" data-where="decade=2010" id="p-top10">—</b>, reflecting decades of label mergers.</p>
+    <div class="hx-card">
+      <h3>Share of #1 hits from the top three parent companies</h3>
+      <p class="hx-note">Top three by count within each decade · hover a bar for the names</p>
+      <div class="hx-chart " id="c-top3" data-source="n1dec"></div>
+    </div>
+  </section>
+
+  <section class="hx-sec s6" id="artists">
+    <h2><span class="hx-num">6</span>Who owns the top spot</h2>
+    <p class="hx-p">The Beatles still hold the record for the most #1 hits, <b data-source="art_n1" data-field="number_ones" data-where="artist=The%20Beatles" id="a-beatles">—</b>, one ahead of Mariah Carey's <b data-source="art_n1" data-field="number_ones" data-where="artist=Mariah%20Carey" id="a-mariah">—</b>. But no act has stayed at the top longer than Mariah: <b data-source="art_wk" data-field="weeks_at_1" data-where="artist=Mariah%20Carey" id="a-mariahwk">—</b> weeks at #1 across her career. The Beatles did it in a burst, with every one of their #1s between <span data-source="art_n1" data-field="first_year" data-where="artist=The%20Beatles" id="a-b1">—</span> and <span data-source="art_n1" data-field="last_year" data-where="artist=The%20Beatles" id="a-b2">—</span>; Mariah's run spans <b data-source="art_n1" data-field="span_years" data-where="artist=Mariah%20Carey" id="a-mspan">—</b> years.</p>
+    <div class="hx-grid">
+      <div class="hx-card">
+        <h3>Most #1 hits</h3>
+        <p class="hx-note">Credited as lead or featured artist · <span class="hx-legend"><i style="background:var(--c6)"></i>outside the US</span><span class="hx-legend"><i style="background:var(--c5)"></i>US</span></p>
+        <div class="hx-chart hx-h " id="c-art" data-source="art_n1"></div>
+      </div>
+      <div class="hx-card">
+        <h3>Most weeks at #1</h3>
+        <p class="hx-note">Total weeks at the top, all of an act's #1 hits combined · <span class="hx-legend"><i style="background:var(--c6)"></i>outside the US</span><span class="hx-legend"><i style="background:var(--c5)"></i>US</span></p>
+        <div class="hx-chart hx-h " id="c-artwk" data-source="art_wk"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hx-sec s7" id="world">
+    <h2><span class="hx-num">7</span>The world on America's chart</h2>
+    <p class="hx-p">Acts from outside the US took <b data-source="intl" data-field="share_non_us" data-where="decade=1980" id="w-80">—</b> of #1s in the 1980s, the peak of the British pop era, then fell to <b data-source="intl" data-field="share_non_us" data-where="decade=2000" id="w-00">—</b> in the 2000s. The 2010s brought a second wave led by Canada and the Caribbean: Drake, Rihanna, The Weeknd and Justin Bieber. Overall, British acts account for <b data-source="countries" data-field="number_ones" data-where="country=United%20Kingdom" id="w-uk">—</b> #1 hits and Canadian acts for <b data-source="countries" data-field="number_ones" data-where="country=Canada" id="w-ca">—</b>.</p>
+    <div class="hx-grid">
+      <div class="hx-card">
+        <h3>#1 hits by acts from outside the US</h3>
+        <p class="hx-note">Share of each decade's #1s, by the act's place of origin</p>
+        <div class="hx-chart " id="c-intl" data-source="intl"></div>
+      </div>
+      <div class="hx-card">
+        <h3>Where the non-US #1s came from</h3>
+        <p class="hx-note">#1 hits by country of origin, 1958–2025 (joint acts count for each country)</p>
+        <div class="hx-chart hx-h " id="c-ctry" data-source="countries"></div>
+      </div>
+    </div>
+    <div class="hx-grid" style="margin-top: var(--cds-gap-md)">
+      <div class="hx-card">
+        <h3>Top international acts</h3>
+        <p class="hx-note">Most #1 hits by acts from outside the US</p>
+        <div class="hx-tablewrap"><table id="t-intl" data-source="art_intl" data-row-key="artist">
+          <thead><tr><th data-field="rank">#</th><th data-field="artist" style="text-align:left">Artist</th><th data-field="origin" style="text-align:left">From</th><th data-field="number_ones">#1 hits</th><th data-field="weeks_at_1">Weeks at #1</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="hx-card">
+        <h3>Top US acts</h3>
+        <p class="hx-note">Most #1 hits by acts from the United States</p>
+        <div class="hx-tablewrap"><table id="t-us" data-source="art_us" data-row-key="artist">
+          <thead><tr><th data-field="rank">#</th><th data-field="artist" style="text-align:left">Artist</th><th data-field="first_year">First #1</th><th data-field="number_ones">#1 hits</th><th data-field="weeks_at_1">Weeks at #1</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hx-sec s8" id="records">
+    <h2><span class="hx-num">8</span>Record breakers</h2>
+    <div class="hx-rec">
+      <div class="hx-card ac1">
+        <p class="hx-k-label">Longest run at #1</p>
+        <div><span class="hx-k-val " data-source="records" data-field="value" data-where="record=Longest run at #1" id="r1-v">—</span><span class="unit" id="r1-u"></span></div>
+        <div class="song"><b data-source="records" data-field="song" data-where="record=Longest run at #1" id="r1-s"></b><span id="r1-sep"> · </span><span data-source="records" data-field="artist" data-where="record=Longest run at #1" id="r1-a"></span> · <span data-source="records" data-field="year" data-where="record=Longest run at #1" id="r1-y"></span></div>
+        <div class="hx-k-sub" data-source="records" data-field="note" data-where="record=Longest run at #1" id="r1-n"></div>
+      </div>
+      <div class="hx-card ac5">
+        <p class="hx-k-label">Biggest leap to #1</p>
+        <div><span class="hx-k-val " data-source="records" data-field="value" data-where="record=Biggest leap to #1" id="r2-v">—</span><span class="unit" id="r2-u"></span></div>
+        <div class="song"><b data-source="records" data-field="song" data-where="record=Biggest leap to #1" id="r2-s"></b><span id="r2-sep"> · </span><span data-source="records" data-field="artist" data-where="record=Biggest leap to #1" id="r2-a"></span> · <span data-source="records" data-field="year" data-where="record=Biggest leap to #1" id="r2-y"></span></div>
+        <div class="hx-k-sub" data-source="records" data-field="note" data-where="record=Biggest leap to #1" id="r2-n"></div>
+      </div>
+      <div class="hx-card ac3">
+        <p class="hx-k-label">Longest Hot 100 run (to May 2021)</p>
+        <div><span class="hx-k-val " data-source="records" data-field="value" data-where="record=Longest Hot 100 run (to May 2021)" id="r3-v">—</span><span class="unit" id="r3-u"></span></div>
+        <div class="song"><b data-source="records" data-field="song" data-where="record=Longest Hot 100 run (to May 2021)" id="r3-s"></b><span id="r3-sep"> · </span><span data-source="records" data-field="artist" data-where="record=Longest Hot 100 run (to May 2021)" id="r3-a"></span> · <span data-source="records" data-field="year" data-where="record=Longest Hot 100 run (to May 2021)" id="r3-y"></span></div>
+        <div class="hx-k-sub" data-source="records" data-field="note" data-where="record=Longest Hot 100 run (to May 2021)" id="r3-n"></div>
+      </div>
+      <div class="hx-card ac2">
+        <p class="hx-k-label">Youngest lead singer at #1</p>
+        <div><span class="hx-k-val " data-source="records" data-field="value" data-where="record=Youngest lead singer at #1" id="r4-v">—</span><span class="unit" id="r4-u"></span></div>
+        <div class="song"><b data-source="records" data-field="song" data-where="record=Youngest lead singer at #1" id="r4-s"></b><span id="r4-sep"> · </span><span data-source="records" data-field="artist" data-where="record=Youngest lead singer at #1" id="r4-a"></span> · <span data-source="records" data-field="year" data-where="record=Youngest lead singer at #1" id="r4-y"></span></div>
+        <div class="hx-k-sub" data-source="records" data-field="note" data-where="record=Youngest lead singer at #1" id="r4-n"></div>
+      </div>
+      <div class="hx-card ac4">
+        <p class="hx-k-label">Oldest lead singer at #1</p>
+        <div><span class="hx-k-val " data-source="records" data-field="value" data-where="record=Oldest lead singer at #1" id="r5-v">—</span><span class="unit" id="r5-u"></span></div>
+        <div class="song"><b data-source="records" data-field="song" data-where="record=Oldest lead singer at #1" id="r5-s"></b><span id="r5-sep"> · </span><span data-source="records" data-field="artist" data-where="record=Oldest lead singer at #1" id="r5-a"></span> · <span data-source="records" data-field="year" data-where="record=Oldest lead singer at #1" id="r5-y"></span></div>
+        <div class="hx-k-sub" data-source="records" data-field="note" data-where="record=Oldest lead singer at #1" id="r5-n"></div>
+      </div>
+      <div class="hx-card ac6">
+        <p class="hx-k-label">Longest span between first and latest #1</p>
+        <div><span class="hx-k-val " data-source="records" data-field="value" data-where="record=Longest span between first and latest #1" id="r6-v">—</span><span class="unit" id="r6-u"></span></div>
+        <div class="song"><b data-source="records" data-field="song" data-where="record=Longest span between first and latest #1" id="r6-s"></b><span id="r6-sep"> · </span><span data-source="records" data-field="artist" data-where="record=Longest span between first and latest #1" id="r6-a"></span> · <span data-source="records" data-field="year" data-where="record=Longest span between first and latest #1" id="r6-y"></span></div>
+        <div class="hx-k-sub" data-source="records" data-field="note" data-where="record=Longest span between first and latest #1" id="r6-n"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hx-sec s9" id="india">
+    <h2><span class="hx-num">9</span>India and South Asia on America's chart</h2>
+    <p class="hx-p">None of the acts behind a #1 hit in this data list India as their place of origin, but artists with South Asian roots have reached the very top. Jay Sean's <i>Down</i> hit #1 and stayed on the Hot 100 for <b data-source="south" data-field="weeks" data-where="song=Down" id="s-down">—</b> weeks, and A.R. Rahman's <i>Jai Ho!</i> climbed to #<b data-source="south" data-field="peak" data-where="song=Jai%20Ho!%20(You%20Are%20My%20Destiny)" id="s-jaiho">—</b>. India's sound reached the top earlier: <b data-source="sitar_count" id="s-sitar">—</b> #1 hits feature a sitar, and in <span data-source="india" data-field="year" data-where="song=Calcutta" id="s-cal">—</span> an instrumental named <i>Calcutta</i> went to #1.</p>
+    <div class="hx-grid">
+      <div class="hx-card">
+        <h3>Top-40 hits by artists with South Asian roots</h3>
+        <p class="hx-note">Hot 100, 1958–May 2021 · roots notes added by the analyst</p>
+        <div class="hx-tablewrap"><table id="t-sa" data-source="south" data-row-key="song">
+          <thead><tr><th data-field="song" style="text-align:left">Song</th><th data-field="performer" style="text-align:left">Credited as</th><th data-field="peak">Peak</th><th data-field="weeks">Weeks</th><th data-field="year">Year</th><th data-field="roots" style="text-align:left">Roots</th></tr></thead><tbody></tbody></table></div>
+      </div>
+      <div class="hx-card ac9">
+        <h3>India on the #1 hits</h3>
+        <p class="hx-note">#1s featuring a sitar, or named after an Indian city</p>
+        <div class="hx-tablewrap"><table id="t-ind" data-source="india" data-row-key="song">
+          <thead><tr><th data-field="song" style="text-align:left">Song</th><th data-field="artist" style="text-align:left">Artist</th><th data-field="year">Year</th><th data-field="link" style="text-align:left">Connection</th></tr></thead><tbody></tbody></table></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="hx-sec s10" id="table">
+    <h2>Every measure, by decade</h2>
+    <div class="hx-card">
+      <p class="hx-note" style="margin-top:0">#1 hits only · 2020–25 runs to the latest #1 in the data</p>
+      <div class="hx-tablewrap">
+        <table id="t-dec" data-source="n1dec" data-row-key="decade_label">
+          <thead><tr>
+            <th data-field="decade_label">Decade</th>
+            <th data-field="songs">#1 hits</th>
+            <th data-field="median_length_sec">Median length</th>
+            <th data-field="median_intro_sec">Median intro</th>
+            <th data-field="avg_songwriters">Writers</th>
+            <th data-field="avg_producers">Producers</th>
+            <th data-field="share_featured_artist">Has a feature</th>
+            <th data-field="share_explicit">Explicit</th>
+            <th data-field="share_fade_out">Fades out</th>
+            <th data-field="share_artist_cowrote">Artist co-wrote</th>
+            <th data-field="avg_weeks_at_1">Weeks at #1</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="hx-sec s10" id="implications">
+    <h2>What this means for the business</h2>
+    <div class="hx-impl">
+      <div class="hx-card ac6"><h3>A&amp;R and production</h3><p>The opening seconds now carry the song. Short intros and endings without a fade are the norm among recent #1s, not a gimmick.</p></div>
+      <div class="hx-card ac4"><h3>Publishing</h3><p>More writers per hit means smaller shares per writer and more complex splits, raising the value of accurate metadata and fast registration.</p></div>
+      <div class="hx-card ac5"><h3>Marketing</h3><p>When hits peak in week one, the pre-release campaign decides the chart run. Release-week coordination matters more than slow-build radio campaigns.</p></div>
+      <div class="hx-card ac7"><h3>Catalogue and data teams</h3><p>Higher chart churn means more songs get a brief moment. Spotting which ones keep streaming after week one is where analytics adds value.</p></div>
+    </div>
+  </section>
+
+  <section class="hx-sec hx-method" id="method">
+    <div class="hx-card">
+      <h3>Method and caveats</h3>
+      <ul>
+        <li><b>#1 hits:</b> <span data-source="songs_total" id="m-n1">—</span> songs that reached #1 on the Billboard Hot 100 from August 1958 to 2025, with attributes coded by Chris Dalla Riva (via the TidyTuesday project, August 2025).</li>
+        <li><b>Chart dynamics:</b> <span data-source="entries_total" id="m-h">—</span> songs that entered the weekly Hot 100 from 1959 to 2020 (TidyTuesday, September 2021). The 2020 figures are a single year; songs debuting near the end of the data were left out of time-on-chart.</li>
+        <li><b>Artist rankings</b> count every #1 an act is credited on, as lead or featured artist; joint lead credits count for each act only where both are acts in their own right. Weeks at #1 are as recorded in the source, which may count holiday songs' repeat visits differently from Billboard's own totals. Places of origin are as coded in the source.</li>
+        <li><b>Songwriters</b> exclude credits that come only from samples or interpolations. <b>Parent companies</b> are as recorded in the source, with two names for the same company merged (Vivendi into Universal, TimeWarner into Warner Bros.).</li>
+        <li>Billboard changed its methodology several times (point-of-sale data in 1991, album cuts in December 1998, downloads in February 2005, on-demand streaming in August 2007, YouTube in February 2013). Some shifts here reflect those changes as much as listener behaviour; trends describe what happened, not why.</li>
+      </ul>
+    </div>
+  </section>
+
+  <p class="hx-by">Analysis and visualisation by <b>Mohit Saini</b> · Data analyst · linkedin.com/in/mohitsaini02 · Code: github.com/msaini888</p>
+  <div class="hx-tip" id="hx-tip"></div>
+</div>
+
+<script>
+(function () {
+  const N = (v) => (v === '' || v == null ? null : Number(v));
+  const mmss = (s) => { s = Math.round(s); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  const pct = d3.format('.0%');
+  const one = d3.format('.1f');
+  const secs = (s) => (Number.isInteger(s) ? s : one(s)) + 's';
+  const tip = document.getElementById('hx-tip');
+  const root = document.querySelector('.hx');
+
+  dash.calc('songs_total', {
+    inputs: ['n1dec'], title: '#1 hits analysed', description: 'Sum of #1 hits across all decades.',
+    fn: (n1dec) => n1dec.reduce((a, r) => a + Number(r.songs), 0)
+  });
+  dash.calc('entries_total', {
+    inputs: ['h100yr'], title: 'Hot 100 songs analysed', description: 'Sum of new chart entries, 1959–2020.',
+    fn: (h100yr) => h100yr.reduce((a, r) => a + Number(r.new_songs), 0)
+  });
+
+  function showTip(evt, title, value) {
+    const box = root.getBoundingClientRect();
+    tip.innerHTML = '';
+    const t = document.createElement('div'); t.className = 't'; t.textContent = title;
+    const v = document.createElement('div'); v.className = 'v'; v.textContent = value;
+    tip.append(t, v);
+    tip.style.opacity = 1;
+    let x = evt.clientX - box.left + 12, y = evt.clientY - box.top + 12;
+    const w = tip.offsetWidth;
+    if (x + w > root.clientWidth) x = evt.clientX - box.left - w - 12;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  }
+  const hideTip = () => { tip.style.opacity = 0; };
+
+  function fail(el, st) {
+    el.innerHTML = '';
+    if (st === 'error' || st === 'connect') {
+      const f = document.createElement('div'); f.className = 'hx-fail'; f.textContent = 'Failed to load'; el.append(f);
+      el.classList.remove('dash-skeleton');
+    }
+  }
+
+  const acOf = (el) => getComputedStyle(el).getPropertyValue('--ac').trim() || dash.colors[0];
+  const cvar = (el, n) => getComputedStyle(el).getPropertyValue(n).trim();
+
+  function measure(svg, texts, size) {
+    let w = 0;
+    texts.forEach((s) => { const t = svg.append('text').attr('font-size', size).text(s); w = Math.max(w, t.node().getComputedTextLength()); t.remove(); });
+    return w;
+  }
+
+  function bars(el, rows, opt) {
+    el.innerHTML = ''; el.classList.remove('dash-skeleton');
+    const AC = acOf(el);
+    const W = Math.max(260, el.clientWidth), H = 220;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const ymax = opt.max != null ? opt.max : d3.max(rows, (r) => r.y) * 1.15;
+    const y = d3.scaleLinear([0, ymax], [H - 28, 14]).nice();
+    const ticks = y.ticks(4);
+    const ml = measure(svg, ticks.map(opt.tick || opt.fmt), 11) + 10;
+    const x = d3.scaleBand(rows.map((r) => r.x), [ml, W - 4]).padding(0.28);
+    svg.append('g').selectAll('line').data(ticks).join('line')
+      .attr('x1', ml).attr('x2', W).attr('y1', (d) => y(d)).attr('y2', (d) => y(d))
+      .attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(ticks).join('text')
+      .attr('x', ml - 8).attr('y', (d) => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end')
+      .attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text(opt.tick || opt.fmt);
+    const bw = Math.min(32, x.bandwidth());
+    const last = rows[rows.length - 1].x;
+    svg.append('g').selectAll('rect').data(rows).join('rect')
+      .attr('x', (d) => x(d.x) + (x.bandwidth() - bw) / 2).attr('width', bw)
+      .attr('y', (d) => y(d.y)).attr('height', (d) => y(0) - y(d.y)).attr('rx', 4)
+      .attr('fill', AC).attr('fill-opacity', (d) => (d.x === last || (opt.accent && opt.accent(d)) ? 1 : 0.45))
+      .on('mousemove', (e, d) => showTip(e, d.x + (d.extra ? ' · ' + d.extra : ''), opt.fmt(d.y)))
+      .on('mouseleave', hideTip);
+    if (W > 420) svg.append('g').selectAll('text').data(rows).join('text')
+      .attr('x', (d) => x(d.x) + x.bandwidth() / 2).attr('y', (d) => y(d.y) - 5).attr('text-anchor', 'middle')
+      .attr('font-size', 11).attr('font-weight', 600).attr('fill', AC).text((d) => opt.fmt(d.y));
+    const step = W < 420 ? 2 : 1;
+    svg.append('g').selectAll('text').data(rows.filter((d, i) => i % step === 0)).join('text')
+      .attr('x', (d) => x(d.x) + x.bandwidth() / 2).attr('y', H - 8).attr('text-anchor', 'middle')
+      .attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text((d) => d.x);
+    svg.append('line').attr('x1', ml).attr('x2', W).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--cds-chart-axis)');
+  }
+
+  function line(el, rows, opt) {
+    el.innerHTML = ''; el.classList.remove('dash-skeleton');
+    const AC = acOf(el);
+    rows = rows.filter((r) => r.y != null && !isNaN(r.y));
+    const W = Math.max(260, el.clientWidth), H = opt.h || 220;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const x0 = d3.min(rows, (r) => r.x), x1 = d3.max(rows, (r) => r.x);
+    const y = d3.scaleLinear([0, (opt.max != null ? opt.max : d3.max(rows, (r) => r.y) * 1.1)], [H - 26, opt.events ? 40 : 12]).nice();
+    const ticks = y.ticks(4);
+    const ml = measure(svg, ticks.map(opt.tick || opt.fmt), 11) + 10;
+    const lastLabel = opt.fmt(rows[rows.length - 1].y);
+    const mr = measure(svg, [lastLabel], 12) + 12;
+    const x = d3.scaleLinear([x0, x1], [ml, W - mr]);
+    svg.append('g').selectAll('line').data(ticks).join('line')
+      .attr('x1', ml).attr('x2', W - mr).attr('y1', (d) => y(d)).attr('y2', (d) => y(d)).attr('stroke', 'var(--cds-chart-grid)');
+    svg.append('g').selectAll('text').data(ticks).join('text')
+      .attr('x', ml - 8).attr('y', (d) => y(d)).attr('dy', '0.32em').attr('text-anchor', 'end')
+      .attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text(opt.tick || opt.fmt);
+    const xt = x.ticks(W < 420 ? 4 : 7).filter(Number.isInteger);
+    svg.append('g').selectAll('text').data(xt).join('text')
+      .attr('x', (d) => x(d)).attr('y', H - 6).attr('text-anchor', 'middle')
+      .attr('font-size', 11).attr('fill', 'var(--color-fg-muted)').text((d) => d);
+    if (opt.events) {
+      const ev = opt.events.filter((e) => e.x >= x0 && e.x <= x1);
+      const g = svg.append('g');
+      ev.forEach((e, i) => {
+        g.append('line').attr('x1', x(e.x)).attr('x2', x(e.x)).attr('y1', 14 + (i % 2) * 14).attr('y2', H - 26)
+          .attr('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '3 3');
+        const t = g.append('text').attr('x', x(e.x) + 4).attr('y', 22 + (i % 2) * 14)
+          .attr('font-size', 10.5).attr('fill', 'var(--color-fg-muted)').text(W < 520 ? e.s : e.l);
+        const tw = t.node().getComputedTextLength();
+        if (x(e.x) + 4 + tw > W) t.attr('x', x(e.x) - 4).attr('text-anchor', 'end');
+      });
+    }
+    const gid = 'g' + el.id;
+    const grad = svg.append('defs').append('linearGradient').attr('id', gid).attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', 1);
+    [[0, .28], [.5, .1], [1, 0]].forEach(([o, a]) => grad.append('stop').attr('offset', o).style('stop-color', AC).style('stop-opacity', a));
+    svg.append('path').datum(rows).attr('fill', `url(#${gid})`)
+      .attr('d', d3.area().x((d) => x(d.x)).y0(y(0)).y1((d) => y(d.y)));
+    svg.append('path').datum(rows)
+      .attr('d', d3.line().x((d) => x(d.x)).y((d) => y(d.y)))
+      .attr('fill', 'none').attr('stroke', AC).attr('stroke-width', 2.5)
+      .attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+    const L = rows[rows.length - 1];
+    svg.append('circle').attr('cx', x(L.x)).attr('cy', y(L.y)).attr('r', 4.5).attr('fill', AC);
+    svg.append('text').attr('x', x(L.x) + 6).attr('y', y(L.y)).attr('dy', '0.32em')
+      .attr('font-size', 12).attr('font-weight', 700).attr('fill', AC).text(lastLabel);
+    svg.append('line').attr('x1', ml).attr('x2', W - mr).attr('y1', y(0)).attr('y2', y(0)).attr('stroke', 'var(--cds-chart-axis)');
+    const dot = svg.append('circle').attr('r', 4).attr('fill', AC).attr('opacity', 0);
+    const bis = d3.bisector((d) => d.x).center;
+    svg.append('rect').attr('x', ml).attr('y', 0).attr('width', W - mr - ml).attr('height', H).attr('fill', 'transparent')
+      .on('mousemove', (e) => {
+        const [mx] = d3.pointer(e); const d = rows[bis(rows, x.invert(mx))];
+        dot.attr('cx', x(d.x)).attr('cy', y(d.y)).attr('opacity', 1);
+        showTip(e, String(d.x), opt.fmt(d.y));
+      })
+      .on('mouseleave', () => { dot.attr('opacity', 0); hideTip(); });
+  }
+
+  const EVENTS = [
+    { x: 1991.9, l: 'Point-of-sale data', s: '1991' },
+    { x: 1998.9, l: 'Album cuts eligible', s: '1998' },
+    { x: 2005.1, l: 'Downloads', s: '2005' },
+    { x: 2007.6, l: 'Streaming', s: '2007' },
+    { x: 2013.1, l: 'YouTube', s: '2013' },
+  ];
+
+  const set = (id, text) => { const el = document.getElementById(id); if (el) { el.textContent = text; el.classList.remove('dash-skeleton'); } };
+
+  dash.onData(() => {
+    const a = dash.data('n1dec'), b = dash.data('h100yr'), c = dash.data('h100dec');
+    const charts = { n1dec: ['c-len', 'c-intro', 'c-wr', 'c-solo', 'c-top3'], h100yr: ['c-deb', 'c-new', 'c-wk'] };
+
+    if (a.status === 'ok') {
+      const rows = a.data.map((r) => ({ ...r, decade: N(r.decade) }));
+      const by = (d) => rows.find((r) => r.decade === d);
+      set('t-len90', mmss(N(by(1990).median_length_sec)));
+      set('t-len20', mmss(N(by(2020).median_length_sec)));
+      set('k-len', mmss(N(by(2020).median_length_sec)));
+      set('k-len-b', mmss(N(by(1990).median_length_sec)));
+      set('k-intro', secs(N(by(2020).median_intro_sec)));
+      set('k-intro-b', secs(N(by(1990).median_intro_sec)));
+      set('k-wr', one(N(by(2020).avg_songwriters)));
+      set('k-wr-b', one(N(by(1980).avg_songwriters)));
+      set('p-fade80', pct(N(by(1980).share_fade_out)));
+      set('p-fade20', pct(N(by(2020).share_fade_out)));
+      set('p-solo80', pct(N(by(1980).share_solo_writer)));
+      set('p-solo20', pct(N(by(2020).share_solo_writer)));
+      set('p-top60', pct(N(by(1960).top3_parent_share)));
+      set('p-top10', pct(N(by(2010).top3_parent_share)));
+      const D = (f) => rows.map((r) => ({ x: r.decade_label, y: N(r[f]), extra: f === 'top3_parent_share' ? r.top3_parents : null }));
+      bars(document.getElementById('c-len'), D('median_length_sec'), { fmt: mmss, tick: (v) => mmss(v), max: 300 });
+      bars(document.getElementById('c-intro'), D('median_intro_sec'), { fmt: secs, tick: (v) => v + 's' });
+      bars(document.getElementById('c-wr'), D('avg_songwriters'), { fmt: one, tick: (v) => v });
+      bars(document.getElementById('c-solo'), D('share_solo_writer'), { fmt: pct, max: 0.5 });
+      bars(document.getElementById('c-top3'), D('top3_parent_share'), { fmt: pct, max: 1 });
+
+      const tb = document.querySelector('#t-dec tbody'); tb.innerHTML = '';
+      rows.forEach((r) => {
+        const tr = document.createElement('tr');
+        const cells = [r.decade_label, d3.format(',')(N(r.songs)), mmss(N(r.median_length_sec)), secs(N(r.median_intro_sec)),
+          one(N(r.avg_songwriters)), one(N(r.avg_producers)), pct(N(r.share_featured_artist)), pct(N(r.share_explicit)),
+          pct(N(r.share_fade_out)), pct(N(r.share_artist_cowrote)), one(N(r.avg_weeks_at_1))];
+        cells.forEach((v) => { const td = document.createElement('td'); td.textContent = v; tr.append(td); });
+        tb.append(tr);
+      });
+    } else charts.n1dec.forEach((id) => fail(document.getElementById(id), a.status));
+
+    if (b.status === 'ok') {
+      const rows = b.data.map((r) => ({ year: N(r.year), new_songs: N(r.new_songs), deb: N(r.top10_debuting_in_top10), wk: N(r.median_weeks_on_chart) }));
+      const y = (yy) => rows.find((r) => r.year === yy);
+      set('t-deb20', pct(y(2020).deb));
+      set('k-deb', pct(y(2020).deb));
+      set('p-new01', d3.format(',')(y(2001).new_songs));
+      set('p-new20', d3.format(',')(y(2020).new_songs));
+      set('p-wk19', String(y(2019).wk));
+      line(document.getElementById('c-deb'), rows.map((r) => ({ x: r.year, y: r.deb })), { fmt: pct, max: 0.8, events: EVENTS, h: 280 });
+      line(document.getElementById('c-new'), rows.map((r) => ({ x: r.year, y: r.new_songs })), { fmt: d3.format(','), max: 800 });
+      line(document.getElementById('c-wk'), rows.map((r) => ({ x: r.year, y: r.wk })), { fmt: (v) => v + ' wks', tick: (v) => v, max: 25 });
+    } else charts.h100yr.forEach((id) => fail(document.getElementById(id), b.status));
+
+    if (c.status === 'ok') {
+      const r = c.data.find((r) => N(r.decade) === 1980);
+      set('k-deb-b', pct(N(r.share_debut_in_top10)));
+    }
+    const s1 = dash.data('songs_total'), s2 = dash.data('entries_total');
+    if (s1.status === 'ok') set('m-n1', d3.format(',')(s1.data));
+    if (s2.status === 'ok') set('m-h', d3.format(',')(s2.data));
+  });
+
+  dash.calc('sitar_count', {
+    inputs: ['india'], title: '#1 hits featuring a sitar', description: 'Count of #1 hits coded as featuring a sitar.',
+    fn: (india) => india.filter((r) => r.link === 'Features a sitar').length
+  });
+
+  function hbars(el, rows, opt) {
+    el.innerHTML = ''; el.classList.remove('dash-skeleton');
+    const AC = acOf(el), A2 = opt.second ? cvar(el, opt.second) : AC;
+    const W = Math.max(260, el.clientWidth), rh = 22, H = rows.length * rh + 6;
+    const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const ml = measure(svg, rows.map((r) => r.label), 12) + 10;
+    const mr = measure(svg, rows.map((r) => opt.fmt(r.value)), 12) + 10;
+    const x = d3.scaleLinear([0, d3.max(rows, (r) => r.value)], [ml, W - mr]);
+    const g = svg.selectAll('g').data(rows).join('g').attr('transform', (d, i) => `translate(0,${i * rh + 3})`);
+    g.append('text').attr('x', ml - 8).attr('y', rh / 2 - 2).attr('dy', '0.32em').attr('text-anchor', 'end')
+      .attr('font-size', 12).attr('fill', 'var(--color-fg)').text((d) => d.label);
+    g.append('rect').attr('x', ml).attr('y', 3).attr('height', rh - 10).attr('rx', 4)
+      .attr('width', (d) => Math.max(2, x(d.value) - ml))
+      .attr('fill', (d) => (opt.accent(d) ? AC : A2)).attr('fill-opacity', (d, i) => (opt.fade ? 1 - i * 0.055 : (opt.accent(d) || opt.second ? 1 : 0.45)))
+      .on('mousemove', (e, d) => showTip(e, d.label + (d.sub ? ' · ' + d.sub : ''), opt.fmt(d.value)))
+      .on('mouseleave', hideTip);
+    g.append('text').attr('x', (d) => x(d.value) + 6).attr('y', rh / 2 - 2).attr('dy', '0.32em')
+      .attr('font-size', 12).attr('font-weight', 700).attr('fill', (d) => (opt.accent(d) ? AC : A2)).text((d) => opt.fmt(d.value));
+  }
+
+  function fillTable(id, rows, cols) {
+    const tb = document.querySelector('#' + id + ' tbody'); tb.innerHTML = '';
+    rows.forEach((r) => {
+      const tr = document.createElement('tr');
+      cols.forEach(([k, f, cls]) => { const td = document.createElement('td'); td.textContent = f ? f(r[k]) : r[k]; if (cls) td.className = cls; tr.append(td); });
+      tb.append(tr);
+    });
+  }
+
+  const int = (v) => String(Math.round(Number(v)));
+  dash.onData(() => {
+    const A = dash.data('art_n1'), Wk = dash.data('art_wk'), I = dash.data('intl'), C = dash.data('countries');
+    const AI = dash.data('art_intl'), AU = dash.data('art_us'), R = dash.data('records'), S = dash.data('south'), IN = dash.data('india');
+    const nonUS = (o) => o && o !== 'United States';
+    if (A.status === 'ok') {
+      const f = (n) => A.data.find((r) => r.artist === n);
+      set('a-beatles', int(f('The Beatles').number_ones)); set('a-mariah', int(f('Mariah Carey').number_ones));
+      set('a-b1', f('The Beatles').first_year); set('a-b2', f('The Beatles').last_year); set('a-mspan', int(f('Mariah Carey').span_years));
+      hbars(document.getElementById('c-art'), A.data.map((r) => ({ label: r.artist, value: N(r.number_ones), sub: r.origin, o: r.origin })), { fmt: int, accent: (d) => nonUS(d.o), second: '--c5' });
+    } else fail(document.getElementById('c-art'), A.status);
+    if (Wk.status === 'ok') {
+      set('a-mariahwk', int(Wk.data.find((r) => r.artist === 'Mariah Carey').weeks_at_1));
+      hbars(document.getElementById('c-artwk'), Wk.data.map((r) => ({ label: r.artist, value: N(r.weeks_at_1), sub: r.origin, o: r.origin })), { fmt: (v) => v + ' wks', accent: (d) => nonUS(d.o), second: '--c5' });
+    } else fail(document.getElementById('c-artwk'), Wk.status);
+    if (I.status === 'ok') {
+      const f = (d) => I.data.find((r) => N(r.decade) === d);
+      set('w-80', pct(N(f(1980).share_non_us))); set('w-00', pct(N(f(2000).share_non_us)));
+      bars(document.getElementById('c-intl'), I.data.map((r) => ({ x: r.decade_label, y: N(r.share_non_us) })), { fmt: pct, max: 0.5, accent: (d) => d.x === '1980s' });
+    } else fail(document.getElementById('c-intl'), I.status);
+    if (C.status === 'ok') {
+      const f = (c) => C.data.find((r) => r.country === c);
+      set('w-uk', int(f('United Kingdom').number_ones)); set('w-ca', int(f('Canada').number_ones));
+      hbars(document.getElementById('c-ctry'), C.data.slice(0, 10).map((r) => ({ label: r.country, value: N(r.number_ones) })), { fmt: int, accent: () => true, fade: true });
+    } else fail(document.getElementById('c-ctry'), C.status);
+    if (AI.status === 'ok') fillTable('t-intl', AI.data, [['rank', int], ['artist', null, 'lbl'], ['origin', null, 'lbl'], ['number_ones', int], ['weeks_at_1', int]]);
+    if (AU.status === 'ok') fillTable('t-us', AU.data, [['rank', int], ['artist', null, 'lbl'], ['first_year'], ['number_ones', int], ['weeks_at_1', int]]);
+    if (R.status === 'ok') {
+      const ids = { 'Longest run at #1': 'r1', 'Biggest leap to #1': 'r2', 'Longest Hot 100 run (to May 2021)': 'r3', 'Youngest lead singer at #1': 'r4', 'Oldest lead singer at #1': 'r5', 'Longest span between first and latest #1': 'r6' };
+      R.data.forEach((r) => {
+        const i = ids[r.record]; if (!i) return;
+        set(i + '-v', r.unit === 'from position' ? '#' + int(r.value) : int(r.value));
+        document.getElementById(i + '-u').textContent = r.unit === 'from position' ? 'to #1 in one week' : r.unit;
+        set(i + '-s', r.song || ''); set(i + '-a', r.artist); set(i + '-y', r.year); document.getElementById(i + '-sep').style.display = r.song ? '' : 'none';
+        set(i + '-n', r.note || '');
+      });
+    }
+    if (S.status === 'ok') {
+      set('s-down', int(S.data.find((r) => r.song === 'Down').weeks));
+      set('s-jaiho', int(S.data.find((r) => r.song.startsWith('Jai Ho')).peak));
+      fillTable('t-sa', S.data, [['song', null, 'lbl'], ['performer', null, 'lbl'], ['peak', (v) => '#' + int(v)], ['weeks', int], ['year'], ['roots', null, 'lbl']]);
+    }
+    if (IN.status === 'ok') {
+      set('s-cal', IN.data.find((r) => r.song === 'Calcutta').year);
+      fillTable('t-ind', IN.data, [['song', null, 'lbl'], ['artist', null, 'lbl'], ['year'], ['link', null, 'lbl']]);
+    }
+    const sc = dash.data('sitar_count'); if (sc.status === 'ok') set('s-sitar', String(sc.data));
+  });
+
+  const named = document.getElementById(location.hash.slice(1));
+  if (named) setTimeout(() => named.scrollIntoView(), 300);
+})();
+</script>
+
+</div></body></html>
